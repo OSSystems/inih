@@ -7,3 +7,4 @@ Name: inih
 Description: inih (INI Not Invented Here) is a simple .INI file parser for C
 Version: @VERSION@
 Libs: -L${libdir} -linih
+Cflags: -I${includedir}
