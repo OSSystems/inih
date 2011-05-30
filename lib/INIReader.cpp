@@ -33,6 +33,17 @@ long INIReader::GetInteger(string section, string name, long default_value)
     return end > value ? n : default_value;
 }
 
+bool INIReader::GetBool(string section, string name, bool default_value)
+{
+    string valstr = Get(section, name, "");
+    if (valstr == "true")
+        return true;
+    else if (valstr == "false")
+        return false;
+    else
+        return default_value;
+}
+
 string INIReader::MakeKey(string section, string name)
 {
     string key = section + "." + name;

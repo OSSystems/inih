@@ -32,6 +32,9 @@ public:
     // not found.
     long GetInteger(std::string section, std::string name, long default_value);
 
+    // Get a bool value from INI file [true, false], returning default_value if not found
+    bool GetBool(std::string section, std::string name, bool default_value);
+
 private:
     int _error;
     std::map<std::string, std::string> _values;
