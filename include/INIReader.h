@@ -32,7 +32,8 @@ public:
     // not found.
     long GetInteger(std::string section, std::string name, long default_value);
 
-    // Get a bool value from INI file [true, false], returning default_value if not found
+    // Get a bool value from INI file, returning default_value if not found
+    // or if value doesn't match any [true, false] variation or any number
     bool GetBool(std::string section, std::string name, bool default_value);
 
 private:

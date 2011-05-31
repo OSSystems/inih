@@ -7,6 +7,8 @@
 
 using std::string;
 
+static int cmpistr(const char* s1, const char* s2);
+
 INIReader::INIReader(string filename)
 {
     _error = ini_parse(filename.c_str(), ValueHandler, this);
@@ -36,12 +38,12 @@ long INIReader::GetInteger(string section, string name, long default_value)
 bool INIReader::GetBool(string section, string name, bool default_value)
 {
     string valstr = Get(section, name, "");
-    if (valstr == "true")
+    if (cmpistr(valstr.c_str(), "true") == 0)
         return true;
-    else if (valstr == "false")
+    else if (cmpistr(valstr.c_str(), "false") == 0)
         return false;
     else
-        return default_value;
+        return GetInteger(section, name, default_value);
 }
 
 string INIReader::MakeKey(string section, string name)
@@ -59,4 +61,44 @@ int INIReader::ValueHandler(void* user, const char* section, const char* name,
     INIReader* reader = (INIReader*)user;
     reader->_values[MakeKey(section, name)] = value;
     return 1;
+}
+
+int cmpistr(const char* s1, const char* s2)
+{
+    int c1, c2;
+    int cmp = 0;
+
+    if (!s1 || !s2)
+        return 2;
+
+    while (1)
+    {
+        c1 = *s1++;
+        c2 = *s2++;
+        if (c1 && c2)
+        {
+            c1 = tolower(c1) & 0xFF;
+            c2 = tolower(c2) & 0xFF;
+            if (c1 < c2)
+            {
+                cmp = -1;
+                break;
+            }
+            else if (c1 > c2)
+            {
+                cmp = 1;
+                break;
+            }
+        }
+        else
+        {
+            if (c1)
+                cmp = 1;
+            else if (c2)
+                cmp = -1;
+            break;
+        }
+    }
+
+    return cmp;
 }
