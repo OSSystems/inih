@@ -38,7 +38,9 @@ long INIReader::GetInteger(string section, string name, long default_value)
 bool INIReader::GetBool(string section, string name, bool default_value)
 {
     string valstr = Get(section, name, "");
-    if (cmpistr(valstr.c_str(), "true") == 0)
+    if (valstr.empty())
+        return default_value;
+    else if (cmpistr(valstr.c_str(), "true") == 0)
         return true;
     else if (cmpistr(valstr.c_str(), "false") == 0)
         return false;
