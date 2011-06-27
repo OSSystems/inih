@@ -1,5 +1,6 @@
 // Read an INI file into easy-to-access name/value pairs.
 
+#include <algorithm>
 #include <cctype>
 #include <cstdlib>
 #include "ini.h"
@@ -35,25 +36,24 @@ long INIReader::GetInteger(string section, string name, long default_value)
     return end > value ? n : default_value;
 }
 
-bool INIReader::GetBool(string section, string name, bool default_value)
+bool INIReader::GetBoolean(string section, string name, bool default_value)
 {
     string valstr = Get(section, name, "");
-    if (valstr.empty())
-        return default_value;
-    else if (cmpistr(valstr.c_str(), "true") == 0)
+    // Convert to lower case to make string comparisons case-insensitive
+    std::transform(valstr.begin(), valstr.end(), valstr.begin(), ::tolower);
+    if (valstr == "true" || valstr == "yes" || valstr == "on" || valstr == "1")
         return true;
-    else if (cmpistr(valstr.c_str(), "false") == 0)
+    else if (valstr == "false" || valstr == "no" || valstr == "off" || valstr == "0")
         return false;
     else
-        return GetInteger(section, name, default_value);
+        return default_value;
 }
 
 string INIReader::MakeKey(string section, string name)
 {
     string key = section + "." + name;
-    // Convert to lower case to make lookups case-insensitive
-    for (int i = 0; i < key.length(); i++)
-        key[i] = tolower(key[i]);
+    // Convert to lower case to make section/name lookups case-insensitive
+    std::transform(key.begin(), key.end(), key.begin(), ::tolower);
     return key;
 }
 
