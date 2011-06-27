@@ -5,7 +5,7 @@ http://code.google.com/p/inih/
 
 This version provides:
 
- - source code syncronized with r10;
+ - source code syncronized with r12;
  - CMake build system;
  - pkg-config support;
 
