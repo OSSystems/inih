@@ -57,6 +57,11 @@ bool INIReader::GetBoolean(string section, string name, bool default_value)
         return default_value;
 }
 
+std::vector<std::string> INIReader::GetSections() const
+{
+    return _sections;
+}
+
 string INIReader::MakeKey(string section, string name)
 {
     string key = section + "." + name;
@@ -72,6 +77,11 @@ int INIReader::ValueHandler(void* user, const char* section, const char* name,
     string key = MakeKey(section, name);
     if (reader->_values[key].size() > 0)
         reader->_values[key] += "\n";
-    reader->_values[key] += value;
+    reader->_values[MakeKey(section, name)] = value;
+
+    std::vector<std::string>::iterator sec_beg = reader->_sections.begin();
+    std::vector<std::string>::iterator sec_end = reader->_sections.end();
+    if (std::find(sec_beg, sec_end, section) == reader->_sections.end())
+        reader->_sections.push_back(section);
     return 1;
 }
