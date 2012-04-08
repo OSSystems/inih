@@ -3,12 +3,11 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>
-#include "ini.h"
-#include "INIReader.h"
+
+#include <ini.h>
+#include <INIReader.h>
 
 using std::string;
-
-static int cmpistr(const char* s1, const char* s2);
 
 INIReader::INIReader(string filename)
 {
@@ -49,11 +48,6 @@ bool INIReader::GetBoolean(string section, string name, bool default_value)
         return default_value;
 }
 
-std::vector<std::string> INIReader::GetSections() const
-{
-    return _sections;
-}
-
 string INIReader::MakeKey(string section, string name)
 {
     string key = section + "." + name;
@@ -66,51 +60,9 @@ int INIReader::ValueHandler(void* user, const char* section, const char* name,
                             const char* value)
 {
     INIReader* reader = (INIReader*)user;
-    reader->_values[MakeKey(section, name)] = value;
-
-    std::vector<std::string>::iterator sec_beg = reader->_sections.begin();
-    std::vector<std::string>::iterator sec_end = reader->_sections.end();
-    if (std::find(sec_beg, sec_end, section) == reader->_sections.end())
-        reader->_sections.push_back(section);
+    string key = MakeKey(section, name);
+    if (reader->_values[key].size() > 0)
+        reader->_values[key] += "\n";
+    reader->_values[key] += value;
     return 1;
-}
-
-int cmpistr(const char* s1, const char* s2)
-{
-    int c1, c2;
-    int cmp = 0;
-
-    if (!s1 || !s2)
-        return 2;
-
-    while (1)
-    {
-        c1 = *s1++;
-        c2 = *s2++;
-        if (c1 && c2)
-        {
-            c1 = tolower(c1) & 0xFF;
-            c2 = tolower(c2) & 0xFF;
-            if (c1 < c2)
-            {
-                cmp = -1;
-                break;
-            }
-            else if (c1 > c2)
-            {
-                cmp = 1;
-                break;
-            }
-        }
-        else
-        {
-            if (c1)
-                cmp = 1;
-            else if (c2)
-                cmp = -1;
-            break;
-        }
-    }
-
-    return cmp;
 }
