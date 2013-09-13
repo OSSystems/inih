@@ -15,7 +15,8 @@ tcc -DINI_ALLOW_MULTILINE=0 ../ini.c -run unittest.c > baseline_single.txt
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ini.h"
+
+#include <ini.h>
 
 int User;
 char Prev_section[50];
@@ -53,5 +54,6 @@ int main(void)
     parse("user_error.ini");
     parse("multi_line.ini");
     parse("bad_multi.ini");
+    parse("bom.ini");
     return 0;
 }

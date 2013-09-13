@@ -13,7 +13,10 @@ http://code.google.com/p/inih/
 
 #include "ini.h"
 
-#define MAX_LINE 200
+#if !INI_USE_STACK
+#include <stdlib.h>
+#endif
+
 #define MAX_SECTION 50
 #define MAX_NAME 50
 
@@ -21,7 +24,7 @@ http://code.google.com/p/inih/
 static char* rstrip(char* s)
 {
     char* p = s + strlen(s);
-    while (p > s && isspace(*--p))
+    while (p > s && isspace((unsigned char)(*--p)))
         *p = '\0';
     return s;
 }
@@ -29,7 +32,7 @@ static char* rstrip(char* s)
 /* Return pointer to first non-whitespace char in given string. */
 static char* lskip(const char* s)
 {
-    while (*s && isspace(*s))
+    while (*s && isspace((unsigned char)(*s)))
         s++;
     return (char*)s;
 }
@@ -41,7 +44,7 @@ static char* find_char_or_comment(const char* s, char c)
 {
     int was_whitespace = 0;
     while (*s && *s != c && !(was_whitespace && *s == ';')) {
-        was_whitespace = isspace(*s);
+        was_whitespace = isspace((unsigned char)(*s));
         s++;
     }
     return (char*)s;
@@ -62,7 +65,11 @@ int ini_parse_file(FILE* file,
                    void* user)
 {
     /* Uses a fair bit of stack (use heap instead if you need to) */
-    char line[MAX_LINE];
+#if INI_USE_STACK
+    char line[INI_MAX_LINE];
+#else
+    char* line;
+#endif
     char section[MAX_SECTION] = "";
     char prev_name[MAX_NAME] = "";
 
@@ -73,10 +80,26 @@ int ini_parse_file(FILE* file,
     int lineno = 0;
     int error = 0;
 
+#if !INI_USE_STACK
+    line = (char*)malloc(INI_MAX_LINE);
+    if (!line) {
+        return -2;
+    }
+#endif
+
     /* Scan through file line by line */
-    while (fgets(line, sizeof(line), file) != NULL) {
+    while (fgets(line, INI_MAX_LINE, file) != NULL) {
         lineno++;
-        start = lskip(rstrip(line));
+
+        start = line;
+#if INI_ALLOW_BOM
+        if (lineno == 1 && (unsigned char)start[0] == 0xEF &&
+                           (unsigned char)start[1] == 0xBB &&
+                           (unsigned char)start[2] == 0xBF) {
+            start += 3;
+        }
+#endif
+        start = lskip(rstrip(start));
 
         if (*start == ';' || *start == '#') {
             /* Per Python ConfigParser, allow '#' comments at start of line */
@@ -128,6 +151,10 @@ int ini_parse_file(FILE* file,
             }
         }
     }
+
+#if !INI_USE_STACK
+    free(line);
+#endif
 
     return error;
 }
