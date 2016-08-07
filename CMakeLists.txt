@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 2.6)
 project(inih)
 
+
+
+OPTION(COMPLILE_EXAMPLE "is complile the example?",ON)
+
+include_directories(include)
+
+link_directories(${CMAKE_SOURCE_DIR}/lib)
+
 add_subdirectory(lib)
 add_subdirectory(include)
 
@@ -11,3 +19,7 @@ endif( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 configure_file(inih.pc.in inih.pc @ONLY)
 configure_file(inihcpp.pc.in inihcpp.pc @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/inih.pc ${CMAKE_BINARY_DIR}/inihcpp.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
+
+if(COMPLILE_EXAMPLE)
+	add_subdirectory(examples)
+endif()

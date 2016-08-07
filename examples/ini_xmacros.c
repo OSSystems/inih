@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../ini.h"
+#include "ini.h"
 
 /* define the config struct type */
 typedef struct {
